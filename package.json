@@ -1,0 +1,12 @@
+{
+  "name": "tank-combat",
+  "version": "1.0.0",
+  "description": "Tank Combat Simulator",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "Apache-2.0"
+}
