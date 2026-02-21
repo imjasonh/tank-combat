@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tank Combat Simulator - Printable Deck</title>
+        <style>
+            :root {
+                --card-width: 2.5in;
+                --card-height: 3.5in;
+            }
+
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f0f0f0;
+                margin: 0;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .controls {
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .controls button {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+
+            .page {
+                display: grid;
+                grid-template-columns: repeat(3, var(--card-width));
+                grid-template-rows: repeat(3, var(--card-height));
+                grid-auto-flow: dense;
+                gap: 0;
+                background: white;
+                padding: 0.5in;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                page-break-after: always;
+            }
+
+            .card {
+                width: var(--card-width);
+                height: var(--card-height);
+                box-sizing: border-box;
+                border: 1px dashed #999; /* Cut lines */
+                padding: 0.1in;
+                display: flex;
+                flex-direction: column;
+                background-color: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .card.double {
+                width: calc(var(--card-width) * 2);
+                grid-column: span 2;
+            }
+
+            .card-inner {
+                border: 2px solid #000;
+                border-radius: 8px;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                overflow: hidden;
+                background-color: white;
+            }
+
+            .card-header {
+                text-align: center;
+                font-weight: bold;
+                font-size: 14px;
+                padding: 8px 4px 4px 4px;
+                border-bottom: 1px solid #000;
+                background: white;
+                color: #000;
+            }
+
+            .card-icon {
+                font-size: 48px;
+                text-align: center;
+                flex-grow: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .card-category {
+                font-size: 9px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                text-align: center;
+                font-weight: bold;
+                color: #000;
+                margin-bottom: 4px;
+            }
+
+            .card-desc {
+                font-size: 11px;
+                text-align: center;
+                padding: 0 8px 8px 8px;
+                line-height: 1.2;
+                color: #000;
+            }
+
+            .card-count {
+                position: absolute;
+                bottom: 2px;
+                right: 4px;
+                font-size: 8px;
+                color: #000;
+            }
+
+            /* HP Track Styles */
+            .hp-track-container {
+                padding: 0.2in 0.1in 0.1in 0.1in;
+                border-bottom: 2px solid #000;
+            }
+
+            .hp-track {
+                display: flex;
+                height: 0.3in;
+                border-bottom: 2px solid #000;
+                align-items: flex-end;
+                position: relative;
+            }
+
+            .tick {
+                flex: 1;
+                height: 20%;
+                border-right: 1px solid #000;
+                position: relative;
+            }
+
+            .tick:first-child {
+                border-left: 1px solid #000;
+            }
+
+            .tick-5 {
+                height: 40%;
+            }
+
+            .tick-10 {
+                height: 60%;
+                border-right: 2px solid #000;
+            }
+
+            .tick-label {
+                position: absolute;
+                top: -16px;
+                right: 0;
+                transform: translateX(50%);
+                font-size: 10px;
+                font-weight: bold;
+                color: #000;
+            }
+
+            .tick-adrenaline {
+                border-right: 2px dashed #000;
+                height: 100%;
+            }
+
+            .adrenaline-label {
+                top: -28px;
+                font-size: 14px;
+            }
+
+            /* Tank Info Layout */
+            .tank-info {
+                display: flex;
+                flex: 1;
+                align-items: center;
+                padding: 0.1in;
+            }
+
+            .tank-info .card-icon {
+                font-size: 64px;
+                flex: 0 0 1.5in;
+            }
+
+            .tank-info .tank-details {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .tank-info .card-header {
+                border-bottom: none;
+                font-size: 18px;
+                text-align: left;
+                padding: 0 0 8px 0;
+            }
+
+            .tank-info .card-desc {
+                text-align: left;
+                padding: 0;
+                font-size: 12px;
+            }
+
+            /* Tokens Card */
+            .tokens-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: repeat(4, 1fr);
+                gap: 4px;
+                padding: 8px;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+            .token {
+                border: 2px dashed #000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 12px;
+                text-align: center;
+            }
+
+            .token-icon {
+                font-size: 24px;
+            }
+
+            /* Reference Cards */
+            .ref-content {
+                padding: 12px;
+                font-size: 11px;
+                line-height: 1.4;
+            }
+
+            .ref-content h3 {
+                margin: 0 0 8px 0;
+                font-size: 12px;
+                border-bottom: 1px solid #000;
+                padding-bottom: 4px;
+            }
+
+            .ref-content ul {
+                margin: 0;
+                padding-left: 16px;
+            }
+
+            .ref-content li {
+                margin-bottom: 6px;
+            }
+
+            @media print {
+                body {
+                    background-color: white;
+                    margin: 0;
+                    padding: 0;
+                }
+                .controls {
+                    display: none;
+                }
+                .page {
+                    box-shadow: none;
+                    margin: 0;
+                    padding: 0.25in; /* Adjust based on printer margins */
+                    gap: 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="controls">
+            <h1>Tank Combat Simulator - Deck & Classes</h1>
+            <p>
+                Print this page on A4 or Letter paper in Black & White. Cut
+                along the dashed lines.
+            </p>
+            <button onclick="window.print()">Print Cards</button>
+        </div>
+
+        <div id="deck-container"></div>
+
+        <script>
+            const cardDefinitions = [
+                // Offense (25)
+                {
+                    id: "fire",
+                    name: "Fire!",
+                    category: "offense",
+                    icon: "🔥",
+                    count: 15,
+                    desc: "Required to execute a 'Fire' action from the Breech.",
+                },
+                {
+                    id: "coaxial_mg",
+                    name: "Coaxial MG",
+                    category: "offense",
+                    icon: "🔫",
+                    count: 10,
+                    desc: "Deals 10 DMG. Played directly from the hand (bypasses Breech).",
+                },
+
+                // Munitions (20)
+                {
+                    id: "he",
+                    name: "HE Munition",
+                    category: "munition",
+                    icon: "💣",
+                    count: 12,
+                    desc: "Deals 25 DMG. Must be Loaded into the Breech.",
+                },
+                {
+                    id: "heat",
+                    name: "HEAT Munition",
+                    category: "munition",
+                    icon: "☄️",
+                    count: 6,
+                    desc: "Deals 50 DMG. Must be Loaded. Completely destroys Ablative Armor without damage reduction.",
+                },
+                {
+                    id: "sabot",
+                    name: "Sabot Munition",
+                    category: "munition",
+                    icon: "🚀",
+                    count: 2,
+                    desc: "Deals 75 DMG. Must be Loaded.",
+                },
+
+                // Hazards (18)
+                {
+                    id: "tracked",
+                    name: "Tracked",
+                    category: "hazard",
+                    icon: "⛓️",
+                    count: 6,
+                    desc: "Hazard: Target cannot play 'Fire!' or 'Coaxial MG'.",
+                },
+                {
+                    id: "jammed_breech",
+                    name: "Jammed Breech",
+                    category: "hazard",
+                    icon: "🚫",
+                    count: 6,
+                    desc: "Hazard: Target cannot perform a 'Load' action.",
+                },
+                {
+                    id: "comms_jammed",
+                    name: "Comms Jammed",
+                    category: "hazard",
+                    icon: "🔇",
+                    count: 6,
+                    desc: "Hazard: Target cannot play 'Smoke Launchers'.",
+                },
+
+                // Remedies (18)
+                {
+                    id: "field_repair",
+                    name: "Field Repair",
+                    category: "remedy",
+                    icon: "🔧",
+                    count: 6,
+                    desc: "Remedy: Removes 'Tracked' Hazard.",
+                },
+                {
+                    id: "clear_breech",
+                    name: "Clear Breech",
+                    category: "remedy",
+                    icon: "🛠️",
+                    count: 6,
+                    desc: "Remedy: Removes 'Jammed Breech' Hazard.",
+                },
+                {
+                    id: "reestablish_comms",
+                    name: "Re-establish Comms",
+                    category: "remedy",
+                    icon: "📡",
+                    count: 6,
+                    desc: "Remedy: Removes 'Comms Jammed' Hazard.",
+                },
+
+                // Defenses (16)
+                {
+                    id: "smoke_launchers",
+                    name: "Smoke Launchers",
+                    category: "defense",
+                    icon: "💨",
+                    count: 10,
+                    desc: "Interrupt: Play out-of-turn to completely negate an incoming attack.",
+                },
+                {
+                    id: "ablative_armor",
+                    name: "Ablative Armor",
+                    category: "defense",
+                    icon: "🛡️",
+                    count: 6,
+                    desc: "Equip: Reduces incoming damage by 50% (rounded up), then discards itself.",
+                },
+
+                // Safeties (3)
+                {
+                    id: "reinforced_treads",
+                    name: "Reinforced Treads",
+                    category: "safety",
+                    icon: "🚜",
+                    count: 1,
+                    desc: "Permanent Safety: Prevents 'Tracked'. (Can trigger Coup Fourré)",
+                },
+                {
+                    id: "advanced_targeting",
+                    name: "Advanced Targeting",
+                    category: "safety",
+                    icon: "🎯",
+                    count: 1,
+                    desc: "Permanent Safety: Prevents 'Jammed Breech'. (Can trigger Coup Fourré)",
+                },
+                {
+                    id: "encrypted_comms",
+                    name: "Encrypted Comms",
+                    category: "safety",
+                    icon: "🔐",
+                    count: 1,
+                    desc: "Permanent Safety: Prevents 'Comms Jammed'. (Can trigger Coup Fourré)",
+                },
+            ];
+
+            const classDefinitions = [
+                {
+                    id: "class_heavy",
+                    name: "Heavy Tank",
+                    category: "class",
+                    icon: "🦏",
+                    maxHP: 100,
+                    adrenaline: 25,
+                    desc: "<b>100 HP | Hand: 6</b><br/><br/><i>Adrenaline (≤25 HP):</i><br/><b>Bunker Buster</b> - Attacks ignore Ablative Armor & Smoke Launchers.",
+                },
+                {
+                    id: "class_medium",
+                    name: "Medium Tank",
+                    category: "class",
+                    icon: "🐆",
+                    maxHP: 85,
+                    adrenaline: 21,
+                    desc: "<b>85 HP | Hand: 6</b><br/><br/><i>Passive:</i> Once per turn, discard 1 card to draw 1.<br/><br/><i>Adrenaline (≤21 HP):</i><br/><b>Autoloader</b> - May Load & Fire in the same turn.",
+                },
+                {
+                    id: "class_light",
+                    name: "Light Tank",
+                    category: "class",
+                    icon: "🦊",
+                    maxHP: 80,
+                    adrenaline: 20,
+                    desc: "<b>80 HP | Hand: 10</b><br/><br/><i>Adrenaline (≤20 HP):</i><br/><b>Ghost</b> - Opponents must discard 1 card to attack you (blocks attack if they cannot).",
+                },
+            ];
+
+            function generateHPTrack(maxHP, adrenaline) {
+                let html =
+                    '<div class="hp-track-container"><div class="hp-track">';
+                for (let i = 1; i <= maxHP; i++) {
+                    let classes = ["tick"];
+                    let label = "";
+
+                    if (i === 1) {
+                        label +=
+                            '<span class="tick-label" style="right: auto; left: 0; transform: translateX(-50%);">0</span>';
+                    }
+
+                    if (i % 10 === 0) {
+                        classes.push("tick-10");
+                        label += `<span class="tick-label">${i}</span>`;
+                    } else if (i % 5 === 0) {
+                        classes.push("tick-5");
+                    }
+
+                    if (i === adrenaline) {
+                        classes.push("tick-adrenaline");
+                        label += `<span class="tick-label adrenaline-label">⚠️</span>`;
+                    }
+
+                    html += `<div class="${classes.join(" ")}">${label}</div>`;
+                }
+                html += "</div></div>";
+                return html;
+            }
+
+            const container = document.getElementById("deck-container");
+
+            // --- PAGE 1: Tank Classes, Tokens, and Reference Cards ---
+            const page1El = document.createElement("div");
+            page1El.className = "page";
+
+            // 1. Heavy Tank (Span 2)
+            const heavyEl = document.createElement("div");
+            heavyEl.className = "card double";
+            heavyEl.innerHTML = `
+                <div class="card-inner">
+                    ${generateHPTrack(classDefinitions[0].maxHP, classDefinitions[0].adrenaline)}
+                    <div class="tank-info">
+                        <div class="card-icon">${classDefinitions[0].icon}</div>
+                        <div class="tank-details">
+                            <div class="card-header">${classDefinitions[0].name}</div>
+                            <div class="card-desc">${classDefinitions[0].desc}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            page1El.appendChild(heavyEl);
+
+            // 2. Tokens Card (Span 1)
+            const tokensEl = document.createElement("div");
+            tokensEl.className = "card";
+            let tokensHtml =
+                '<div class="card-inner"><div class="card-header">HP Markers</div><div class="tokens-grid">';
+            for (let i = 0; i < 8; i++) {
+                tokensHtml += `<div class="token"><span class="token-icon">🔻</span>HP</div>`;
+            }
+            tokensHtml += "</div></div>";
+            tokensEl.innerHTML = tokensHtml;
+            page1El.appendChild(tokensEl);
+
+            // 3. Medium Tank (Span 2)
+            const mediumEl = document.createElement("div");
+            mediumEl.className = "card double";
+            mediumEl.innerHTML = `
+                <div class="card-inner">
+                    ${generateHPTrack(classDefinitions[1].maxHP, classDefinitions[1].adrenaline)}
+                    <div class="tank-info">
+                        <div class="card-icon">${classDefinitions[1].icon}</div>
+                        <div class="tank-details">
+                            <div class="card-header">${classDefinitions[1].name}</div>
+                            <div class="card-desc">${classDefinitions[1].desc}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            page1El.appendChild(mediumEl);
+
+            // 4. Reference Card 1 (Span 1)
+            const ref1El = document.createElement("div");
+            ref1El.className = "card";
+            ref1El.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-header">Turn Structure</div>
+                    <div class="ref-content">
+                        <h3>1. Start of Turn</h3>
+                        <ul>
+                            <li>Draw 1 card.</li>
+                        </ul>
+                        <h3>2. Action Phase</h3>
+                        <ul>
+                            <li>Play exactly 1 Action (Load, Fire, Quick Fire, Sabotage, Repair, Equip, or Discard).</li>
+                            <li><i>Medium Passive:</i> May discard 1 to draw 1 (free action).</li>
+                        </ul>
+                        <h3>3. End of Turn</h3>
+                        <ul>
+                            <li>Discard down to hand limit.</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            page1El.appendChild(ref1El);
+
+            // 5. Light Tank (Span 2)
+            const lightEl = document.createElement("div");
+            lightEl.className = "card double";
+            lightEl.innerHTML = `
+                <div class="card-inner">
+                    ${generateHPTrack(classDefinitions[2].maxHP, classDefinitions[2].adrenaline)}
+                    <div class="tank-info">
+                        <div class="card-icon">${classDefinitions[2].icon}</div>
+                        <div class="tank-details">
+                            <div class="card-header">${classDefinitions[2].name}</div>
+                            <div class="card-desc">${classDefinitions[2].desc}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            page1El.appendChild(lightEl);
+
+            // 6. Reference Card 2 (Span 1)
+            const ref2El = document.createElement("div");
+            ref2El.className = "card";
+            ref2El.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-header">Keywords</div>
+                    <div class="ref-content">
+                        <h3>Interrupts</h3>
+                        <ul>
+                            <li><b>Smoke Launchers:</b> Play out-of-turn to negate an incoming attack.</li>
+                            <li><b>Coup Fourré:</b> When sabotaged, reveal matching Safety to negate, equip it, draw 1, force attacker to discard 1, and take an immediate bonus turn.</li>
+                        </ul>
+                        <h3>Adrenaline</h3>
+                        <ul>
+                            <li>Triggers when HP drops to threshold.</li>
+                            <li>Instantly clears all Hazards.</li>
+                            <li>Activates Class Adrenaline Trait.</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            page1El.appendChild(ref2El);
+
+            container.appendChild(page1El);
+
+            // --- PAGE 2+: Standard Deck ---
+            const deck = [];
+            cardDefinitions.forEach((def) => {
+                for (let i = 0; i < def.count; i++) {
+                    deck.push({ ...def, copyNum: i + 1 });
+                }
+            });
+
+            const CARDS_PER_PAGE = 9;
+
+            for (let i = 0; i < deck.length; i += CARDS_PER_PAGE) {
+                const pageCards = deck.slice(i, i + CARDS_PER_PAGE);
+
+                const pageEl = document.createElement("div");
+                pageEl.className = "page";
+
+                pageCards.forEach((card) => {
+                    const cardEl = document.createElement("div");
+                    cardEl.className = `card`;
+
+                    cardEl.innerHTML = `
+                        <div class="card-inner">
+                            <div class="card-header">${card.name}</div>
+                            <div class="card-icon">${card.icon}</div>
+                            <div class="card-category">${card.category}</div>
+                            <div class="card-desc">${card.desc}</div>
+                            <div class="card-count">${card.copyNum}/${card.count}</div>
+                        </div>
+                    `;
+
+                    pageEl.appendChild(cardEl);
+                });
+
+                // Fill empty slots on the last page if necessary to maintain grid
+                if (pageCards.length < CARDS_PER_PAGE) {
+                    for (
+                        let j = 0;
+                        j < CARDS_PER_PAGE - pageCards.length;
+                        j++
+                    ) {
+                        const emptyEl = document.createElement("div");
+                        emptyEl.className = "card";
+                        emptyEl.style.visibility = "hidden";
+                        pageEl.appendChild(emptyEl);
+                    }
+                }
+
+                container.appendChild(pageEl);
+            }
+        </script>
+    </body>
+</html>
