@@ -401,7 +401,7 @@
                     category: "defense",
                     icon: "🛡️",
                     count: 6,
-                    desc: "Equip: Reduces incoming damage by 50% (rounded up), then discards itself.",
+                    desc: "Equip: Reduces incoming damage by 10, then discards itself.",
                 },
 
                 // Safeties (3)
@@ -439,25 +439,25 @@
                     icon: "🦏",
                     maxHP: 100,
                     adrenaline: 25,
-                    desc: "<b>100 HP | Hand: 6</b><br/><br/><i>Adrenaline (≤25 HP):</i><br/><b>Bunker Buster</b> - Attacks ignore Ablative Armor & Smoke Launchers.",
+                    desc: "<b>100 HP | Hand: 5</b><br/><br/><i>Passive:</i> Reduce all incoming damage by 5.<br/><br/><i>Adrenaline (≤25 HP):</i><br/><b>Bunker Buster</b> - Attacks ignore Ablative Armor & Smoke Launchers.",
                 },
                 {
                     id: "class_medium",
                     name: "Medium Tank",
                     category: "class",
                     icon: "🐆",
-                    maxHP: 85,
-                    adrenaline: 21,
-                    desc: "<b>85 HP | Hand: 6</b><br/><br/><i>Passive:</i> Once per turn, discard 1 card to draw 1.<br/><br/><i>Adrenaline (≤21 HP):</i><br/><b>Autoloader</b> - May Load & Fire in the same turn.",
+                    maxHP: 100,
+                    adrenaline: 25,
+                    desc: "<b>100 HP | Hand: 6</b><br/><br/><i>Passive:</i> Once per turn, discard 1 card to draw 1.<br/><br/><i>Adrenaline (≤25 HP):</i><br/><b>Autoloader</b> - May Load & Fire in the same turn.",
                 },
                 {
                     id: "class_light",
                     name: "Light Tank",
                     category: "class",
                     icon: "🦊",
-                    maxHP: 80,
-                    adrenaline: 20,
-                    desc: "<b>80 HP | Hand: 10</b><br/><br/><i>Adrenaline (≤20 HP):</i><br/><b>Ghost</b> - Opponents must discard 1 card to attack you (blocks attack if they cannot).",
+                    maxHP: 100,
+                    adrenaline: 25,
+                    desc: "<b>100 HP | Hand: 10</b><br/><br/><i>Adrenaline (≤25 HP):</i><br/><b>Ghost</b> - Opponents must discard 1 card to attack you (blocks attack if they cannot).",
                 },
             ];
 
@@ -552,7 +552,7 @@
                     <div class="ref-content">
                         <h3>1. Start of Turn</h3>
                         <ul>
-                            <li>Draw 1 card.</li>
+                            <li>Draw up to hand size limit.</li>
                         </ul>
                         <h3>2. Action Phase</h3>
                         <ul>

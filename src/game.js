@@ -10,9 +10,14 @@ function playTurn(state, getAIDecision) {
 
   // 1. Start of Turn
   player.hasSpawnShield = false;
-  const drawnCard = draw(state);
-  if (drawnCard) {
-    player.hand.push(drawnCard);
+  // Draw up to hand size
+  while (player.hand.length < player.handSize) {
+    const drawnCard = draw(state);
+    if (drawnCard) {
+      player.hand.push(drawnCard);
+    } else {
+      break;
+    }
   }
 
   if (state.gameOver) return; // Deck and discard empty

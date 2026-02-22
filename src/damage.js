@@ -22,10 +22,15 @@ function resolveDamage(state, attacker, target, munitionName) {
     munitionName !== "heat" &&
     target.tableau.ablativeArmor > 0
   ) {
-    const reduction = Math.ceil(damage / 2);
-    damage -= reduction;
+    damage -= 10;
     target.tableau.ablativeArmor--;
-    steps.push(`ablative_reduced=${reduction}`);
+    steps.push("ablative_reduced=10");
+  }
+
+  // Step 5: Heavy passive damage reduction (not in adrenaline)
+  if (target.class === "heavy" && !target.isAdrenaline) {
+    damage -= 5;
+    steps.push("heavy_passive=-5");
   }
 
   // Step 6: Floor at 0

@@ -1,7 +1,7 @@
 const CLASSES = {
-  heavy: { maxHP: 100, adrenalineThreshold: 25, handSize: 6 },
-  medium: { maxHP: 85, adrenalineThreshold: 21, handSize: 6 },
-  light: { maxHP: 80, adrenalineThreshold: 20, handSize: 10 },
+  heavy: { maxHP: 100, adrenalineThreshold: 25, handSize: 5 },
+  medium: { maxHP: 100, adrenalineThreshold: 25, handSize: 6 },
+  light: { maxHP: 100, adrenalineThreshold: 25, handSize: 10 },
 };
 
 function createPlayer(id, tankClass) {
