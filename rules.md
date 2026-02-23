@@ -1,126 +1,71 @@
-The following specification details the entities, the exact game loop, the event stack (for interrupts), and edge cases.
+# Tank Combat — Rules
 
-### 1. Game State & Entities
+## Overview
 
-**The Global State:**
+Players command tanks, loading and firing munitions to destroy each other. In a **Duel** (2 players), reduce your opponent to 0 HP. In a **Deathmatch** (3+), be the first to score 3 kills.
 
-* **Deck:** A shared array of 100 cards. Draws from the top. When empty, immediately shuffle the Discard pile to form a new Deck.
-* **Discard Pile:** A shared array of face-up cards.
-* **Turn Index:** Tracks the current active player.
-* **Game Mode:**
-  * **Duel:** 2 players. Win condition: Opponent reaches 0 HP.
-  * **Deathmatch:** 3+ players. Win condition: First player to reach 3 Kill Marks.
+## Tank Classes
 
-**The Player Entity (Tank State):**
+All tanks have **100 HP**. At **25 HP or below**, Adrenaline activates: clear all your hazards and gain a powerful new ability (replacing your passive).
 
-* **Class:** `Heavy`, `Medium`, or `Light`.
-* **MaxHP:** 100 (all classes).
-* **CurrentHP:** Integer.
-* **Kill Marks:** Integer (starts at 0).
-* **Hand:** Up to the hand size limit (Heavy: 5, Medium: 6, Light: 10).
-* **Tableau (Board State):**
-  * `Breech`: Holds 0 or 1 Munition card (HE, HEAT, or Sabot).
-  * `Hazards`: Array of active Impediment cards.
-  * `Safeties`: Array of active Permanent Safety cards.
-  * `AblativeArmor`: Integer count of active Ablative Armor cards.
-* **Status Flags:**
-  * `IsAdrenaline`: Boolean (True if CurrentHP <= 25).
-  * `HasSpawnShield`: Boolean (Grants immunity until the player's next turn starts).
+| Class | Hand Size | Passive | Adrenaline |
+|-------|-----------|---------|------------|
+| **Heavy** | 5 | -5 incoming damage | Attacks ignore Ablative Armor & Smoke |
+| **Medium** | 6 | Free discard-and-draw once/turn | Load *and* Fire in one turn |
+| **Light** | 10 | More cards, more options | Attackers must discard a card to target you |
 
-### 2. Tank Classes & Modifiers
+## Cards (100-card deck)
 
-All classes have 100 HP and an Adrenaline threshold of 25 HP.
+**Munitions** — Load into your breech, then fire on a later turn.
+- **High Explosive** (12x) — 25 damage
+- **Anti-Tank** (6x) — 50 damage, ignores and removes up to 1 Ablative Armor.
+- **Armor Piercing** (2x) — 75 damage
 
-| Class | Hand Size | Passive Trait | Adrenaline Trait (Replaces Passive) |
-| --- | --- | --- | --- |
-| **Heavy** | 5 | Reduce all incoming damage by 5. | **Bunker Buster:** Attacks ignore Ablative Armor and Smoke Launchers. |
-| **Medium** | 6 | Once per turn, may discard 1 card to draw 1 card (free action). | **Autoloader:** May perform both a "Load" and a "Fire" action in the same turn. |
-| **Light** | 10 | Larger hand provides more options each turn. | **Ghost:** Opponents must discard 1 card from their hand before declaring an attack on you. |
+**Other Offense**
+- **Fire!** (15x) — Discard to fire whatever's in your breech at a target.
+- **Coaxial MG** (10x) — Play directly for 10 damage (no breech needed).
 
-### 3. Card Definitions (The 100-Card Deck)
+**Hazards** → **Remedies** (6 of each)
+- **Tracked** → **Field Repair** — Can't attack.
+- **Jammed Breech** → **Clear Breech** — Can't load.
+- **Comms Jammed** → **Re-establish Comms** — Can't play Smoke.
 
-**Offense (45 Cards):**
+**Defenses**
+- **Smoke Launchers** (10x) — Play on anyone's turn to cancel an incoming attack.
+- **Ablative Armor** (6x) — Equip to absorb 10 damage from one hit, then discarded.
+- **Permanent Safeties** (1x each: Reinforced Treads, Advanced Targeting, Encrypted Comms) — Equip to become immune to the matching hazard.
 
-* **Fire!** (15x): Required to execute a "Fire" action from the Breech.
-* **Coaxial MG** (10x): Deals 10 DMG. Played directly from the hand (bypasses Breech).
-* **HE Munition** (12x): Deals 25 DMG. Must be Loaded into the Breech.
-* **HEAT Munition** (6x): Deals 50 DMG. Must be Loaded. Destroys 1 Ablative Armor on target without damage reduction.
-* **Sabot Munition** (2x): Deals 75 DMG. Must be Loaded.
+## Turn Structure
 
-**Hazards (18 Cards) & Remedies (18 Cards):**
+1. **Draw** up to your hand size limit.
+2. **Take one action:**
+   - **Load** a munition into your breech.
+   - **Fire** (discard a Fire! card) at a target.
+   - **Quick Fire** a Coaxial MG at a target.
+   - **Sabotage** — play a hazard on an opponent.
+   - **Repair** — remove a hazard from yourself or an ally.
+   - **Equip** Ablative Armor or a Permanent Safety.
+   - **Discard** 1 card (if nothing else is possible).
+3. **Discard** down to your hand size limit if over.
 
-* **Tracked** (6x): Target cannot play `Fire!` or `Coaxial MG`. / **Field Repair** (6x): Removes `Tracked`.
-* **Jammed Breech** (6x): Target cannot perform a `Load` action. / **Clear Breech** (6x): Removes `Jammed Breech`.
-* **Comms Jammed** (6x): Target cannot play `Smoke Launchers` to protect opponents. / **Re-establish Comms** (6x): Removes `Comms Jammed`.
+## Interrupts
 
-**Defenses (19 Cards):**
+When an attack is declared, before it resolves:
 
-* **Smoke Launchers** (10x): Played out-of-turn to completely negate an incoming attack.
-* **Ablative Armor** (6x): Played onto Tableau. When attacked, reduces incoming damage by 10, then discards itself.
-* **Reinforced Treads** (1x): Permanent Safety. Prevents `Tracked`.
-* **Advanced Targeting** (1x): Permanent Safety. Prevents `Jammed Breech`.
-* **Encrypted Comms** (1x): Permanent Safety. Prevents `Comms Jammed`.
+- **Smoke Launchers** — Any player (if not Comms Jammed) may play Smoke to cancel the attack entirely.
+- **Tactical Override** — If an opponent plays a hazard on you and you hold the matching Permanent Safety, reveal it to cancel the hazard, equip the safety, force the attacker to discard a random card, draw a card, and take a bonus turn.
 
-### 4. The Event Loop (Turn Phases)
+## Damage Resolution
 
-**1. Start of Turn Phase:**
+1. Start with base damage (10 / 25 / 50 / 75).
+2. If the target has Ablative Armor: reduce damage by 10 and discard one armor. (HEAT instead destroys the armor with no damage reduction.)
+3. If the target is Heavy and is not under Adrenaline: reduce damage by 5.
+4. When target's HP reaches 0, it is destroyed.
 
-* If `HasSpawnShield` is True, set it to False.
-* Player draws cards from the Deck until their hand reaches its size limit (Heavy: 5, Medium: 6, Light: 10).
+## Death & Respawn (Deathmatch)
 
-**2. Action Phase (Strictly 1 Action per turn):**
-The player selects exactly one action to place on the resolution stack:
+When a tank hits 0 HP, the attacker scores a kill mark. The destroyed tank respawns at full HP with a fresh hand, a clear tableau, and a **Spawn Shield** (immune until the start of their next turn).
 
-* **Load:** Move a Munition from Hand to `Breech`. (Fails if `Jammed Breech` is active or Breech is full).
-* **Fire:** Discard a `Fire!` card from Hand. Select a target. Resolve loaded Munition against target. Discard Munition. (Fails if `Tracked` is active or Breech is empty).
-* **Quick Fire:** Discard `Coaxial MG` from Hand. Select target. Resolve 10 DMG. (Fails if `Tracked` is active).
-* **Sabotage:** Target an opponent. Move Hazard from Hand to their `Hazards` array. (Fails if target has matching Permanent Safety).
-* **Repair:** Discard Remedy from Hand. Remove matching Hazard from self or ally.
-* **Equip:** Move `Ablative Armor` or Permanent Safety from Hand to `Safeties` array.
-* **Discard:** Discard 1 card from Hand. (Mandatory if no other actions are taken/possible).
+## Deck Recycling
 
-**3. End of Turn Phase:**
-
-* Hand size check: If Hand > limit, discard down to limit.
-* Pass turn index to the next alive player.
-
-### 5. Resolution Stack & Interrupts
-
-When an action is declared, it enters the stack. Opponents have a window to play out-of-turn interrupt cards before the action resolves.
-
-**Interrupt: Smoke Launchers**
-
-* **Trigger:** A `Fire` or `Quick Fire` action is declared targeting a player.
-* **Effect:** Any player (unless afflicted by `Comms Jammed` targeting someone else) may discard `Smoke Launchers` from their Hand. The attack is negated. Both the attacker's `Fire!` card and the Munition (or the `Coaxial MG`) go to the Discard Pile. Damage = 0.
-
-**Interrupt: Tactical Override (The Coup Fourre)**
-
-* **Trigger:** An opponent targets Player B with a Hazard. Player B has the exact matching Permanent Safety in their Hand.
-* **Effect:**
-  1. Player B reveals the Permanent Safety.
-  2. The opponent's Hazard is discarded (negated).
-  3. Player B instantly equips the Permanent Safety to their Tableau.
-  4. The attacker must discard 1 card at random.
-  5. Player B draws 1 card.
-  6. **Turn Order Shift:** Player B immediately takes a full bonus turn. After this bonus turn, the global Turn Index resumes starting with the player to Player B's left.
-
-### 6. Damage Calculation & State Checks
-
-When an attack successfully bypasses Smoke Launchers, calculate damage in this strict order:
-
-1. **Base Damage:** Determine base from the Munition (10, 25, 50, or 75).
-2. **Attacker Modifiers:** If Attacker is Heavy in Adrenaline mode, ignore steps 3 and 4 entirely.
-3. **HEAT Check:** If Munition is HEAT, instantly destroy 1 `Ablative Armor` on target. Skip step 4.
-4. **Ablative Armor Check:** If target has `Ablative Armor` equipped, reduce damage by 10. Discard 1 `Ablative Armor`.
-5. **Heavy Passive:** If Target is Heavy (not in Adrenaline), subtract 5 from the incoming damage.
-6. **Floor:** Damage cannot go below 0.
-7. **Apply Damage:** Target `CurrentHP` -= Final Damage.
-
-**Post-Damage State Check:**
-
-* **Adrenaline Check:** If `CurrentHP` <= 25 and not already in Adrenaline, set `IsAdrenaline = True`. Immediately clear all cards in the `Hazards` array.
-* **Death Check:** If `CurrentHP` <= 0:
-  1. Attacker's `KillMarks` += 1.
-  2. If `KillMarks` == 3, Attacker wins. Game ends.
-  3. **Respawn:** Target discards their Hand and entirely clears their Tableau (Breech, Hazards, Safeties, Ablative Armor).
-  4. Target `CurrentHP` resets to 100. Target draws a fresh hand up to their hand size limit. Target sets `HasSpawnShield = True`.
+When the deck is empty, shuffle the discard pile to form a new deck.
